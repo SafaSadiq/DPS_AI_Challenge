@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.metrics import mean_squared_error
+from statsmodels.tsa.arima.model import ARIMA
 
 def preproc(data):
     data = data[data.columns[:5]] #keep only first 5 columns
@@ -75,3 +77,38 @@ def plot_accidents_over_time(data, type="insgesamt", save=False):
         plt.savefig("Visualizations/Accidents(" + type + ")ByYear.png")
 
 
+def create_Time_series_data(data, category, type):
+    data_subset = data[
+        (data["MONATSZAHL"]==category)
+        &
+        (data["AUSPRAEGUNG"]==type)
+        ].drop(columns=["MONATSZAHL","AUSPRAEGUNG"])
+
+    data_subset = data_subset.set_index('MONAT')
+
+    data_subset = data_subset.sort_values(by=['MONAT'])
+
+    return data_subset
+
+def find_best_params(train_set, p_values, d_values, q_values):
+    params = []
+    mse_train_set = []
+
+    for p in p_values:
+        for d in d_values:
+            for q in q_values:
+
+                try:
+                    model = ARIMA(train_set, order=(p,d,q))
+                    model_fit = model.fit()
+                    predict = model_fit.predict()
+                    mse = mean_squared_error(predict, train_set)
+
+                    params.append((p,d,q))
+                    mse_train_set.append(mse)
+                except:
+                    continue
+
+    lowest_mse_index = mse_train_set.index(min(mse_train_set))
+
+    return params[lowest_mse_index]
