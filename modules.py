@@ -28,9 +28,6 @@ def preproc(data):
 
     return accidents_until_2020, accidents_after_2020, accidents_until_2020_by_year, accidents_after_2020_by_year
 
-
-
-
     # print(accidents["MONATSZAHL"].unique())
     # print("___________________________________")
     # print(accidents["AUSPRAEGUNG"].unique())
